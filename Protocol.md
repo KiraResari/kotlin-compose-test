@@ -1,103 +1,95 @@
-# 17-Dec-2022
-
-* This project is about familiarizing myself with the basics of Kotlin Multiplatform before I try to set up my main winter project for this year
-
-* I am following the print media article "Multipaltformprojekte umsetzen mit KMM" in the "Herbst 3/2022" edition of "We Are Developers!" for this
-
-* It says I need Android Studio for this, so let's see if that's freely available
-
-  * Looks like it is: https://developer.android.com/studio
-  * I now managed to successfully install and launch it, so that's already a good start
-
-* The next step tells me to create a new Project from the Template "Kotlin Multiplatform App"
-
-  * Regrettably, that is not available
-  * Reading back over the prerequisites, I notice that I still have to install the KMM-Plugin in Android Studio
-  * I now found and installed a plugin named "Kotlin Multiplatform Mobile", which I figure might be the right one
-  * Looks good, now that I've installed that, I can select the "Kotlin Multiplatform App" project template while creating a new project
-  * I note that the initial project setup is taking a long time. I hope that is just a one-time thing
-    * Started: 17:57
-    * Finished: 18:07
-    * Duration: 10 minutes
-    * I *really* hope that this is not a regular thing
-  * Anyway, with that I think the project setup is complete
-
-* The article is about creating an Android/iOS app
-
-  * However, I actually don't have any interest in creating an iOS app at this point, nor do I have the hardware required to compile it
-  * Instead, I want to create an Android/Windows app
-  * The article does not tell how to create a Windows app, so I'll just follow it through for the Android parts, ignore the iOS parts, and then try to figure out how to make a Windows app out of it thereafter
-  * I don't know how or if that is possible, but some reading I did in advance suggests that it *should* be possible
-
-* I am now reading through what I'm gonna consider the preamble of the article
-
-  * While doing so, I notice that my project setup appears to differ slightly from the one mentioned in the article
-    * For one, the file `Platform.kt` in `commonMain` contains an `interface Platform` for me, while the article talks about an `expect class Platform()` instead
-      * Not sure if this is going to be a problem, but we'll see
-      * I note that `expect` seems to be something like `abstract`, and that apparently it needs to be actualized with the `actual` keyword in the actual implementation
-        * Or not. Rather, it seems something like a static function for interfaces, which is kinda interesting if you think about it
-
-* I am now at the first step, where I am trying to add a new function `getDeviceName()` to the `interface Platform`
-
-  * I did that, and now it is complaining to me that a number of other classes are not implementing that method, which makes sense
-
-  * I was easily able to add it to the Android class `AndroidPlatform`, but...
-
-  * ...the iOS classes are another matter entirely, and if I use the Quick Fix option, it just creates a lone Kotlin file in the iOS project, which is clearly garbage
-
-  * So I now tried removing the iOS projects (and there were three of them) entirely, but that only caused another triplicate error to appear as now it can't find the function `getPlatform` anymore either 
-
-  * So, what else do I need to do in order to fully purge iOS from my project?
-
-  * The error messages  all follow this pattern:
-
-    * ````
-      Expected function 'getPlatform' has no actual declaration in module Kotlin_Multiplatform_Test_App.shared.iosArm64Main for Native
-      ````
-
-    * So, where are those modules defined?
-
-    * I was now able to find them by right-clicking on the project in the outliner, then selecting "Load/Unload Modules", and then navigating to beneath the "shared" folder where they were located
-
-    * That fixed the issue
-
-* After a little straightforward coding, I have now reached the point where the article tells me to start the app using the simulator integrated in Android Studio
-
-  * I tried doing that by  clicking on the "Run Preview" icon in the DefaultPreview, but that only got me this error message:
-
-    * ````
-      com.intellij.execution.ExecutionException: Cannot find runner for DefaultPreview
-      	at com.intellij.execution.runners.ExecutionEnvironmentBuilder$Companion.create(ExecutionEnvironmentBuilder.kt:48)
-      [...]
-      ````
-
-  * Maybe this will help?
-
-    * https://developer.android.com/studio/run/emulator
-    * Okay, so it would seem that I already have a virtual device pre-configured, which I remember is something I checked during the installation
-    * However, for some strange reason, the play button is greyed out when that device is selected, which differs from what is described and displayed in this article
-    * I was now able to get it to work using `File` -> `Sync Project with Gradle files`
-
-  * Yes, and now it works! Awesome!
-
-* This is as far as I'm getting with this today, and a good place to stop for the day too
-
-
-
 # 19-Dec-2022
 
-* Now continuing with this
-* My next goal is to get this simple hello world app running on Desktop as well
+* This is about evaluating Kotlin Compose
 
-  * I am getting "Compose" as a key word from a number of places that I searched here
-  * This is supposedly a sample project that features desktop support
-  
-    * https://github.com/Kotlin/kmm-production-sample/
-  * In addition, this looks like a good place to start reading up on this:
+* I found this for reading up on it:
 
-    * https://simply-how.com/getting-started-with-compose-for-desktop
-  * I now realize that Kotlin Compose is a Framework different from Kotlin Multiplatform, and while I'm not sure if they can be used in conjunction, I don't think so
-  * I'll create a different project for evaluating this: `kotlin-compose-test`
+  * https://simply-how.com/getting-started-with-compose-for-desktop
+
+  * It says I need IntelliJ for this, but let's see if Android Studio will also work
+
+    * At first look it seems like it works, but I'll brace myself for complications further down the line
+    * Aaand, it looks like it's doing the 10-minute gradle download thing again, which I suppose is okay since this is a new project (I downloaded the sample project template as instructed in the tutorial), and if that needs to happen once at the start of each new project, that's acceptable
+
+  * So, the basic hello world desktop application from that works
+
+  * However, the calculator app sample runs into issues
+
+    * When I copy the code from the tutorial website, it has problems with
+
+      * ````
+        fun main() = Window(
+        ````
+
+      * Namely:
+
+      * ````
+        Functions which invoke @Composable functions must be marked with the @Composable annotation
+        ````
+
+      * And if I add `@Composable`, it changes to:
+
+      * ````
+        Composable main functions are not currently supported
+        ````
+
+      * It works if I do it like this...
+
+      * ````
+        fun main() = application {
+            Window(
+        ````
+
+      * However, then more issues happen
+
+      * I think this example might be broken
+
+      * Let me check out the sample code and see
+
+      * That one is located here:
+
+        * https://github.com/soufianesakhi/compose-desktop-calculator
+        * Aaaand, again, ten minute initial build time for the new project
+
+      * Somehow, there it works
+
+      * Maybe a different type of `Window` is used there
+
+      * There, it is from `androidx.compose.desktop.Window`
+
+        * I did try importing that, but it said it couldn't find it
+
+        * Here it works just fine though
+
+        * So maybe it's an issue with the gradle?
+
+        * Yes, looks like they're still using an old version of compose where things apparently behave different enough to cause issues
+
+          * ````kotlin
+            plugins {
+                kotlin("jvm") version "1.4.10"
+                // __UPDATE_COMPOSE_VERSION_MARKER__
+                id("org.jetbrains.compose") version (System.getenv("COMPOSE_TEMPLATE_COMPOSE_VERSION") ?: "0.1.0-build113")
+            }
+            ````
+
+        * And what is the current version?
+
+          * That would be 1.2.2
+
+        * Ugh, so no wonder the tutorial doesn't work, if it was  for an indev version of Compose
+
+  * Let me try to find a more recent Kotlin Compose tutorial
+    * Maybe this will be good?
+      * https://developer.android.com/jetpack/compose/tutorial
+      * Hmm, not sure, that looks a lot like the Kotlin Multiplatform Thing, which _might_ be a good thing, but I don'T think it shows me how to write a desktop app
+    * Maybe this is better?
+      * https://github.com/JetBrains/compose-jb/blob/master/tutorials/Getting_Started/README.md
+      * Okay, this does seem to work, but somehow it doesn't seem fit for Android
+    * But here it says this can also be used for android development:
+      * https://github.com/JetBrains/compose-jb
+    * Hmm, maybe I can combine Compose and KMM after all in order to create a Multiplatform and Desktop experience?
+      * It does annoy me, however, that "Multiplatform" never seems to include both Mobile and Desktop
 
 
 
